@@ -1,4 +1,4 @@
-# zCalendar
+# zCalendar [![Build Status](https://travis-ci.org/synthesio/zcalendar.svg?branch=master)](https://travis-ci.org/synthesio/zcalendar) [![Godoc](http://img.shields.io/badge/godoc-reference-blue.svg?style=flat)](https://godoc.org/github.com/synthesio/zcalendar) [![license](http://img.shields.io/badge/license-MIT-red.svg?style=flat)](https://raw.githubusercontent.com/synthesio/zcalendar/master/LICENSE.md)
 
 A CalendarSpec (almost) compliant calendar event library.
 
