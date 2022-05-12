@@ -197,12 +197,12 @@ func Parse(raw string) (exp Expression, err error) {
 		chunks = chunks[1:]
 	}
 
-	// If there is still a chunk in the stack at this point, and that it is
-	// either UTC or contains a slash, it must be a timezone.
-	if len(chunks) != 0 && (chunks[0] == "UTC" || strings.Contains(chunks[0], "/")) {
+	// If there is still a chunk in the stack at this point it must be a
+	// timezone.
+	if len(chunks) != 0 {
 		exp.timezone, err = time.LoadLocation(chunks[0])
 		if err != nil {
-			return exp, fmt.Errorf(`parsing timezone: %w`, err)
+			return exp, fmt.Errorf("invalid chunk %s", chunks[0])
 		}
 
 		chunks = chunks[1:]

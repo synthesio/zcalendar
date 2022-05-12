@@ -7,10 +7,11 @@ import (
 )
 
 // Those are the values used in the tests.
-var EuropeParis *time.Location
+var EuropeParis, Zulu *time.Location
 
 func init() {
 	EuropeParis, _ = time.LoadLocation("Europe/Paris")
+	Zulu, _ = time.LoadLocation("Zulu")
 }
 
 func TestParse(t *testing.T) {
@@ -105,6 +106,16 @@ func TestParse(t *testing.T) {
 			seconds:  []component{{From: 5}},
 			timezone: time.UTC,
 		}},
+		{name: "Zulu timezone", in: "Mon 2006-01-02 15:04:05 Zulu", out: Expression{
+			weekdays: []weekdayComponent{{From: 1}},
+			years:    []component{{From: 2006}},
+			months:   []component{{From: 1}},
+			days:     []component{{From: 2}},
+			hours:    []component{{From: 15}},
+			minutes:  []component{{From: 4}},
+			seconds:  []component{{From: 5}},
+			timezone: Zulu,
+		}},
 		{name: "date only", in: "2006-01-02", out: Expression{
 			weekdays: defaultWeekdays,
 			years:    []component{{From: 2006}},
@@ -138,6 +149,9 @@ func TestParse(t *testing.T) {
 		{name: "empty expression", in: "", err: true},
 		{name: "not an expression", in: "les sanglots longs des violons de l'automne", err: true},
 		{name: "timezone only", in: "Europe/Paris", err: true},
+		{name: "invalid timezone", in: "Mon 2006-01-02 15:04:05 hello", err: true},
+		{name: "too many chunks", in: "Mon 2006-01-02 15:04:05 UTC hello", err: true},
+		{name: "chunk after timezone", in: "Mon 15:04:05 UTC hello", err: true},
 	})
 }
 
