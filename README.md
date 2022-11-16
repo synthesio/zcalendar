@@ -27,6 +27,10 @@ non-abbreviated (Wednesday) form (case does not matter), separated by commas.
 Specifying two weekdays separated by ".." refers to a range of continuous
 weekdays. "," and ".." may be combined freely.
 
+Monday is considered the first day of the week and a range of weekdays must be
+contained in the same week. For example, "every weekday except Thursday" cannot
+be written `Fri..Wed`; it may be written `Mon..Wed,Fri..Sun` instead.
+
 In the date and time specifications, any component may be specified as "*" in
 which case any value will match. Alternatively, each component can be specified
 as a list of values separated by commas. Values may be suffixed with "/" and a
