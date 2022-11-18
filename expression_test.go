@@ -240,6 +240,7 @@ func TestExpression_Next(t *testing.T) {
 		{name: "next day", exp: "*-*-* 00:00:00 UTC", next: "2006-01-03T00:00:00Z", found: true},
 		{name: "no next date", exp: "2005-*-* 00:00:00 UTC", next: "2006-01-03T00:00:00Z", found: false},
 		{name: "next monday", exp: "Mon 00:00:00 UTC", next: "2006-01-09T00:00:00Z", found: true},
+		{name: "next sunday", exp: "Sun 00:00:00 UTC", next: "2006-01-08T00:00:00Z", found: true},
 	} {
 		t.Run(c.name, func(t *testing.T) {
 			exp, err := Parse(c.exp)

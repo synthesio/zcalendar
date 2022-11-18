@@ -418,7 +418,12 @@ func (e Expression) Next(d time.Time) (n time.Time, ok bool) {
 			second = 0
 		}
 
-		if !e.weekdays.Contains(int(time.Date(year, time.Month(month), day, 0, 0, 0, 0, e.timezone).Weekday())) {
+		weekday := int(time.Date(year, time.Month(month), day, 0, 0, 0, 0, e.timezone).Weekday())
+		// Go's weekdays range is Sunday=0..Saturday=6, while our weekdays are Monday=1..Sunday=7
+		if weekday == 0 {
+			weekday = 7
+		}
+		if !e.weekdays.Contains(weekday) {
 			day++
 			hour = 0
 			minute = 0
