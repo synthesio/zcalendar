@@ -241,6 +241,9 @@ func TestExpression_Next(t *testing.T) {
 		{name: "no next date", exp: "2005-*-* 00:00:00 UTC", next: "2006-01-03T00:00:00Z", found: false},
 		{name: "next monday", exp: "Mon 00:00:00 UTC", next: "2006-01-09T00:00:00Z", found: true},
 		{name: "next sunday", exp: "Sun 00:00:00 UTC", next: "2006-01-08T00:00:00Z", found: true},
+		{name: "next first monday", exp: "Mon *-*-1..7 00:00:00 UTC", next: "2006-02-06T00:00:00Z", found: true},
+		{name: "next fortnight", exp: "*-*-1,15 00:00:00 UTC", next: "2006-01-15T00:00:00Z", found: true},
+		{name: "next ten min", exp: "*-*-* *:00/10:00 UTC", next: "2006-01-02T15:10:00Z", found: true},
 	} {
 		t.Run(c.name, func(t *testing.T) {
 			exp, err := Parse(c.exp)
@@ -264,6 +267,44 @@ func TestExpression_Next(t *testing.T) {
 
 			if !reflect.DeepEqual(next, out) {
 				t.Fatalf("unexpected time output: wanted %v, got %v", next, out)
+			}
+		})
+	}
+}
+
+func BenchmarkExpression_Next(b *testing.B) {
+	var start = time.Date(2006, 01, 02, 15, 04, 05, 0, time.UTC)
+	// Next is more or less efficient depending on the current day, so to
+	// average things out, we'll run the benchmark on different "current" dates.
+	dates := make([]time.Time, 365)
+	for i := 0; i < 365; i++ {
+		dates[i] = start.AddDate(0, 0, i)
+	}
+
+	type Case struct {
+		name string
+		exp  string
+	}
+
+	for _, c := range []Case{
+		{name: "next year", exp: "*-01-01 00:00:00 UTC"},
+		{name: "next month", exp: "*-*-01 00:00:00 UTC"},
+		{name: "next day", exp: "*-*-* 00:00:00 UTC"},
+		{name: "next monday", exp: "Mon 00:00:00 UTC"},
+		{name: "next sunday", exp: "Sun 00:00:00 UTC"},
+		{name: "next first monday", exp: "Mon *-*-1..7 00:00:00 UTC"},
+		{name: "next fortnight", exp: "*-*-1,15 00:00:00 UTC"},
+		{name: "next ten min", exp: "*-*-* *:00/10:00 UTC"},
+	} {
+		b.Run(c.name, func(b *testing.B) {
+			exp, err := Parse(c.exp)
+			if err != nil {
+				b.Fatalf("unexpected error parsing expression: %s", err)
+			}
+			b.ResetTimer()
+
+			for i := 0; i < b.N; i++ {
+				_, _ = exp.Next(dates[i%len(dates)])
 			}
 		})
 	}
