@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"sort"
+	"slices"
 	"strconv"
 	"strings"
 )
@@ -160,15 +160,27 @@ func (cs components) String() string {
 
 // Values return the list of actual values from the various sub-components.
 func (cs components) Values(max int) (values []int) {
-	var seen = make(map[int]struct{})
+	var lenHint int
+	for _, c := range cs {
+		rep := c.Repeat
+		if rep == 0 {
+			rep = 1
+		}
+		if c.To == 0 {
+			lenHint += rep
+		} else {
+			lenHint += (c.To - c.From + 1) * rep
+		}
+	}
+	values = make([]int, 0, lenHint)
 
 	for _, c := range cs {
 		for {
 			if c.To == 0 {
-				seen[c.From] = struct{}{}
+				values = append(values, c.From)
 			} else {
 				for v := c.From; v <= c.To && v <= max; v++ {
-					seen[v] = struct{}{}
+					values = append(values, v)
 				}
 			}
 
@@ -187,12 +199,8 @@ func (cs components) Values(max int) (values []int) {
 		}
 	}
 
-	values = make([]int, 0, len(seen))
-	for k := range seen {
-		values = append(values, k)
-	}
-	sort.Ints(values)
-
+	slices.Sort(values)
+	values = slices.Compact(values)
 	return
 }
 
